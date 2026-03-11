@@ -20,18 +20,18 @@ export class EventImplTest {
   public async beforeEach() {
     await Config.loadAll(Path.fixtures('config'))
 
-    new LoggerProvider().register()
-    new QueueProvider().register()
-    new EventProvider().register()
+    await new LoggerProvider().register()
+    await new QueueProvider().register()
+    await new EventProvider().register()
   }
 
   @AfterEach()
   public async afterEach() {
     Event.clearListeners()
 
-    new QueueProvider().shutdown()
-    new EventProvider().shutdown()
-    new LoggerProvider().shutdown()
+    await new QueueProvider().shutdown()
+    await new EventProvider().shutdown()
+    await new LoggerProvider().shutdown()
 
     Config.clear()
     ioc.reconstruct()

@@ -13,6 +13,8 @@ export const constants = {
     helloListener: false,
     productListener: false,
     annotatedListener: false,
-    decoratedListener: false
-  }
+    decoratedListener: false,
+    closureListener: false
+  },
+  LAST_EVENT: null
 }

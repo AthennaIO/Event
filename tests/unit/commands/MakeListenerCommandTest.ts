@@ -21,12 +21,14 @@ export default class MakeListenerCommandTest extends BaseCommandTest {
     output.assertSucceeded()
     output.assertLogged('[ MAKING LISTENER ]')
     output.assertLogged('[  success  ] Listener "TestListener" successfully created.')
-    output.assertLogged('[  success  ] Athenna RC updated: [ listeners += "#src/events/listeners/TestListener" ]')
+    output.assertLogged(
+      '[  success  ] Athenna RC updated: [ events.listeners += "#src/events/listeners/TestListener" ]'
+    )
 
     const { athenna } = await new File(Path.pwd('package.json')).getContentAsJson()
 
     assert.isTrue(await File.exists(Path.listeners('TestListener.ts')))
-    assert.containSubset(athenna.listeners, ['#src/events/listeners/TestListener'])
+    assert.containSubset(athenna.events.listeners, ['#src/events/listeners/TestListener'])
   }
 
   @Test()
@@ -39,13 +41,13 @@ export default class MakeListenerCommandTest extends BaseCommandTest {
     output.assertLogged('[ MAKING LISTENER ]')
     output.assertLogged('[  success  ] Listener "TestListener" successfully created.')
     output.assertLogged(
-      '[  success  ] Athenna RC updated: [ listeners += "#tests/fixtures/storage/listeners/TestListener" ]'
+      '[  success  ] Athenna RC updated: [ events.listeners += "#tests/fixtures/storage/listeners/TestListener" ]'
     )
 
     const { athenna } = await new File(Path.pwd('package.json')).getContentAsJson()
 
     assert.isTrue(await File.exists(Path.fixtures('storage/listeners/TestListener.ts')))
-    assert.containSubset(athenna.listeners, ['#tests/fixtures/storage/listeners/TestListener'])
+    assert.containSubset(athenna.events.listeners, ['#tests/fixtures/storage/listeners/TestListener'])
   }
 
   @Test()

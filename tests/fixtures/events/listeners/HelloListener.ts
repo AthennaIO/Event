@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import { Listener } from '#src'
 import { constants } from '#tests/fixtures/constants/index'
+import { Listener } from '#src'
 
-@Listener({ connection: 'memory' })
+@Listener({ connection: 'memoryA' })
 export class HelloListener {
   public async handle() {
     constants.RUN_MAP.helloListener = true
