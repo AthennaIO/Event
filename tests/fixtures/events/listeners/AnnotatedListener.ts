@@ -10,9 +10,14 @@
 import { Listener } from '#src'
 import { constants } from '#tests/fixtures/constants/index'
 
-@Listener({ connection: 'memory' })
-export class HelloListener {
+@Listener({
+  type: 'singleton',
+  alias: 'decoratedListener',
+  camelAlias: 'annotatedListener'
+})
+export class AnnotatedListener {
   public async handle() {
-    constants.RUN_MAP.helloListener = true
+    constants.RUN_MAP.decoratedListener = true
+    constants.RUN_MAP.annotatedListener = true
   }
 }

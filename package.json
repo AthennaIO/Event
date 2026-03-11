@@ -1,6 +1,6 @@
 {
   "name": "@athenna/event",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "The Athenna events handler with queue store. Based on Emittery syntax.",
   "license": "MIT",
   "author": "João Lenon <lenon@athenna.io>",
@@ -170,11 +170,14 @@
   },
   "athenna": {
     "bootLogs": false,
-    "listeners": [
-      "#tests/fixtures/listeners/AnnotatedListener",
-      "#tests/fixtures/listeners/HelloListener",
-      "#tests/fixtures/listeners/ProductListener"
-    ],
+    "events": {
+      "path": "#tests/fixtures/events/index",
+      "listeners": [
+        "#tests/fixtures/listeners/AnnotatedListener",
+        "#tests/fixtures/listeners/HelloListener",
+        "#tests/fixtures/listeners/ProductListener"
+      ]
+    },
     "templates": {
       "listener": "./templates/listener.edge"
     }

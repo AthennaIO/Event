@@ -8,7 +8,7 @@
  */
 
 import { Config } from '@athenna/config'
-import { Macroable } from '@athenna/common'
+import { Is, Macroable } from '@athenna/common'
 import { Listener } from '#src/events/Listener'
 import { QueueImpl, type ConnectionOptions } from '@athenna/queue'
 import type { EventClosure, Context } from '#src/types'
@@ -89,11 +89,20 @@ export class EventImpl extends Macroable {
    *
    * @example
    * ```ts
+   * Event.on('user.created', 'UserCreatedListener')
+   * // or
    * Event.on('user.created', user => console.log(user))
    * ```
    */
-  public on(event: string, closure: EventClosure) {
-    const listener = new Listener(event, closure)
+  public on(event: string, closure: EventClosure | string) {
+    let listener = null
+
+    if (Is.String(closure)) {
+      listener = new Listener(event, ctx => ioc.safeUse(closure).handle(ctx))
+    } else {
+      listener = new Listener(event, closure)
+    }
+
     const set = this.listeners.get(event) ?? new Set<string>()
 
     set.add(listener.id)

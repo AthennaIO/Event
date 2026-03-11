@@ -46,10 +46,10 @@ export class MakeListenerCommand extends BaseCommand {
 
     const importPath = this.generator.getImportPath()
 
-    await this.rc.pushTo('listeners', importPath).save()
+    await this.rc.pushTo('events.listeners', importPath).save()
 
     this.logger.success(
-      `Athenna RC updated: ({dim,yellow} [ listeners += "${importPath}" ])`
+      `Athenna RC updated: ({dim,yellow} [ events.listeners += "${importPath}" ])`
     )
   }
 }
