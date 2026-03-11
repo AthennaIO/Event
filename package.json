@@ -1,6 +1,6 @@
 {
   "name": "@athenna/event",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "The Athenna events handler with queue store. Based on Emittery syntax.",
   "license": "MIT",
   "author": "João Lenon <lenon@athenna.io>",
@@ -38,7 +38,8 @@
     "./package": "./package.json",
     "./package.json": "./package.json",
     "./testing/plugins": "./src/testing/plugins/index.js",
-    "./providers/EventProvider": "./src/providers/EventProvider.js"
+    "./providers/EventProvider": "./src/providers/EventProvider.js",
+    "./commands/MakeListenerCommand": "./src/commands/MakeListenerCommand.js"
   },
   "imports": {
     "#bin/*": "./bin/*.js",
