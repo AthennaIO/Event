@@ -1,0 +1,11 @@
+import { Listener, type Context } from '@athenna/event'
+
+type EventData = {
+}
+
+@Listener()
+export class {{ namePascal }} {
+  public async handle(ctx: Context<EventData>) {
+    //
+  }
+}

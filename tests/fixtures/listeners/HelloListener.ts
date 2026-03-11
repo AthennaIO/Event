@@ -7,6 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import { debuglog } from 'node:util'
+import { constants } from '#tests/fixtures/constants/index'
 
-export const debug = debuglog('athenna:event')
+export class HelloListener {
+  public async handle() {
+    constants.RUN_MAP.helloListener = true
+  }
+}

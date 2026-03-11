@@ -1,6 +1,6 @@
-# Template 📔
+# Event 📔
 
-> Template for new projects
+> The Athenna events handler with queue store. Based on Emittery syntax.
 
 [![GitHub followers](https://img.shields.io/github/followers/athennaio.svg?style=social&label=Follow&maxAge=2592000)](https://github.com/athennaio?tab=followers)
 [![GitHub stars](https://img.shields.io/github/stars/AthennaIO/Template.svg?style=social&label=Star&maxAge=2592000)](https://github.com/AthennaIO/Template/stargazers/)

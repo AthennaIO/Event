@@ -7,6 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import { debuglog } from 'node:util'
+import type { Context } from '#src/types/Context'
 
-export const debug = debuglog('athenna:event')
+export type EventClosure<T = any> = (ctx: Context<T>) => any | Promise<any>

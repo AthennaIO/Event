@@ -1,12 +1,12 @@
 {
-  "name": "@athenna/template",
+  "name": "@athenna/event",
   "version": "5.0.0",
-  "description": "Template for new projects.",
+  "description": "The Athenna events handler with queue store. Based on Emittery syntax.",
   "license": "MIT",
   "author": "João Lenon <lenon@athenna.io>",
-  "bugs": "https://github.com/AthennaIO/Template/issues",
-  "repository": "https://github.com/AthennaIO/Template.git",
-  "homepage": "https://github.com/AthennaIO/Template#readme",
+  "bugs": "https://github.com/AthennaIO/Event/issues",
+  "repository": "https://github.com/AthennaIO/Event.git",
+  "homepage": "https://github.com/AthennaIO/Event#readme",
   "keywords": [
     "esm",
     "athenna"
@@ -37,7 +37,8 @@
     "./types": "./src/types/index.js",
     "./package": "./package.json",
     "./package.json": "./package.json",
-    "./testing/plugins": "./src/testing/plugins/index.js"
+    "./testing/plugins": "./src/testing/plugins/index.js",
+    "./providers/EventProvider": "./src/providers/EventProvider.js"
   },
   "imports": {
     "#bin/*": "./bin/*.js",
@@ -50,9 +51,15 @@
     "#tests": "./tests/index.js"
   },
   "devDependencies": {
-    "@athenna/common": "^5.17.0",
-    "@athenna/test": "^5.5.0",
+    "@athenna/artisan": "^5.10.0",
+    "@athenna/common": "^5.29.0",
+    "@athenna/config": "^5.6.0",
+    "@athenna/ioc": "^5.2.0",
+    "@athenna/logger": "^5.13.0",
+    "@athenna/queue": "^5.18.0",
+    "@athenna/test": "^5.6.0",
     "@athenna/tsconfig": "^5.0.0",
+    "@athenna/view": "^5.4.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "commitizen": "^4.3.1",
@@ -159,6 +166,17 @@
           "caughtErrorsIgnorePattern": "^_"
         }
       ]
+    }
+  },
+  "athenna": {
+    "bootLogs": false,
+    "listeners": [
+      "#tests/fixtures/listeners/AnnotatedListener",
+      "#tests/fixtures/listeners/HelloListener",
+      "#tests/fixtures/listeners/ProductListener"
+    ],
+    "templates": {
+      "listener": "./templates/listener.edge"
     }
   }
 }

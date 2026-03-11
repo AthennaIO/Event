@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { debuglog } from 'node:util'
+import { Facade } from '@athenna/ioc'
+import type { EventImpl } from '#src/events/EventImpl'
 
-export const debug = debuglog('athenna:event')
+export const Event = Facade.createFor<EventImpl>('Athenna/Core/Event')
