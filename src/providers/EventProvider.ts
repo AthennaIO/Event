@@ -54,12 +54,8 @@ export class EventProvider extends ServiceProvider {
    * Register the events file by importing the file.
    */
   private async registerEvents(path: string) {
-    // Bust ESM import cache to guarantee the events file re-runs (tests/providers
-    // may register/shutdown provider multiple times in same process).
-    const resolvedPath = `${path}?version=${Math.random()}`
-
     if (path.startsWith('#')) {
-      await Module.resolve(resolvedPath, this.getMeta())
+      await Module.resolve(path, this.getMeta())
 
       return
     }
@@ -72,6 +68,6 @@ export class EventProvider extends ServiceProvider {
       return
     }
 
-    await Module.resolve(`${path}?version=${Math.random()}`, this.getMeta())
+    await Module.resolve(path, this.getMeta())
   }
 }

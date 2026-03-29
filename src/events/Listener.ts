@@ -22,8 +22,18 @@ export class Listener {
     this.id = this.createId()
   }
 
+  /**
+   * Remove the listener.
+   */
   public remove() {
     Event.removeListenerById(this.id)
+  }
+
+  /**
+   * Run the listener.
+   */
+  public async run(data: any) {
+    await this.closure(data)
   }
 
   private createId() {

@@ -21,6 +21,7 @@ import type { ListenerOptions } from '#src/types'
 export function Listener(options?: ListenerOptions): ClassDecorator {
   return (target: any) => {
     options = Options.create(options, {
+      camelAlias: target.name,
       alias: `App/Listeners/${target.name}`,
       connection: Config.get('queue.default'),
       type: 'transient'
