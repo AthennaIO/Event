@@ -23,7 +23,7 @@ export function Listener(options?: ListenerOptions): ClassDecorator {
     options = Options.create(options, {
       camelAlias: target.name,
       alias: `App/Listeners/${target.name}`,
-      connection: Config.get('queue.default'),
+      connection: Config.get('event.store'),
       type: 'transient'
     })
 
