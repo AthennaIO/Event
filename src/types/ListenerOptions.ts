@@ -11,7 +11,7 @@ export type ListenerOptions = {
   /**
    * The queue connection that will be used to get the configurations.
    *
-   * @default Config.get('queue.default')
+   * @default Config.get('event.store')
    */
   connection?: string
 
