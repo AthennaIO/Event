@@ -49,7 +49,7 @@ export class EventImpl extends Macroable {
 
   public constructor() {
     super()
-    this.queue = this.getOrCreateQueue(Config.get('queue.default'))
+    this.queue = this.getOrCreateQueue(Config.get('event.store'))
   }
 
   /**
@@ -468,7 +468,7 @@ export class EventImpl extends Macroable {
 
   private parseConnectionName(con: string) {
     if (con === 'default') {
-      return Config.get('queue.default')
+      return Config.get('event.store')
     }
 
     return con
