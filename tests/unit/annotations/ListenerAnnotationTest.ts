@@ -24,7 +24,7 @@ export default class ListenerAnnotationTest extends BaseTest {
     const metadata = Annotation.getMeta(ProductListener)
 
     assert.isFalse(metadata.registered)
-    assert.isUndefined(metadata.camelAlias)
+    assert.equal(metadata.camelAlias, 'ProductListener')
     assert.equal(metadata.type, 'transient')
     assert.equal(metadata.connection, 'memory')
     assert.equal(metadata.alias, 'App/Listeners/ProductListener')

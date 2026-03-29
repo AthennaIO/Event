@@ -84,8 +84,8 @@ export class EventProviderTest {
 
     await new EventProvider().register()
 
-    assert.isTrue(ioc.has('helloListener'))
-    assert.isTrue(ioc.has('productListener'))
+    assert.isTrue(ioc.has('HelloListener'))
+    assert.isTrue(ioc.has('ProductListener'))
     assert.isTrue(ioc.has('annotatedListener'))
 
     assert.equal(Event.listenerCount('helloListener'), 1)

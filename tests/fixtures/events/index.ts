@@ -11,8 +11,8 @@ import { Event } from '#src'
 import { constants } from '#tests/fixtures/constants/index'
 
 Event.on('annotatedListener', 'annotatedListener')
-Event.on('helloListener', 'helloListener')
-Event.on('productListener', 'productListener')
+Event.on('helloListener', 'HelloListener')
+Event.on('productListener', 'ProductListener')
 
 Event.on('closureListener', ctx => {
   constants.RUN_MAP.closureListener = true
