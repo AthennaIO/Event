@@ -292,6 +292,36 @@ export class EventImplTest {
   }
 
   @Test()
+  public async shouldRunQueuedListenersThroughOtelContextWrapper({ assert }: Context) {
+    const event = Event.store('memoryA') as any
+    const originalRunWithOtelContext = event.runWithOtelContext?.bind(event)
+    let wrappedCtx: any = null
+    let closureCtx: any = null
+
+    event.runWithOtelContext = (ctx, callback) => {
+      wrappedCtx = ctx
+
+      return callback()
+    }
+
+    try {
+      event.on('otel:event', ctx => {
+        closureCtx = ctx
+      })
+
+      await event.emit('otel:event', { ok: true })
+      await Sleep.for(40).milliseconds().wait()
+    } finally {
+      event.runWithOtelContext = originalRunWithOtelContext
+    }
+
+    assert.isDefined(wrappedCtx)
+    assert.deepEqual(wrappedCtx, closureCtx)
+    assert.equal(wrappedCtx.event, 'otel:event')
+    assert.deepEqual(wrappedCtx.data, { ok: true })
+  }
+
+  @Test()
   public async shouldBeAbleToEmitSequentially({ assert }: Context) {
     const event = Event.store('memoryA')
 
