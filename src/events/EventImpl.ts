@@ -8,10 +8,12 @@
  */
 
 import { Config } from '@athenna/config'
-import { Is, Macroable } from '@athenna/common'
 import { Listener } from '#src/events/Listener'
-import { QueueImpl, type ConnectionOptions } from '@athenna/queue'
+import { Is, Macroable, Module } from '@athenna/common'
 import type { EventClosure, Context } from '#src/types'
+import { QueueImpl, type ConnectionOptions } from '@athenna/queue'
+
+const otelModule = await Module.safeImport('@athenna/otel')
 
 export class EventImpl extends Macroable {
   /**
@@ -460,9 +462,20 @@ export class EventImpl extends Macroable {
         emittedAt: data.emittedAt
       }
 
-      await record.closure(ctx)
+      await this.runWithOtelContext(ctx, () => record.closure(ctx))
 
       await queue.ack(job.id)
+    })
+  }
+
+  private runWithOtelContext<T>(ctx: Context, callback: () => T): T {
+    if (!Config.is('event.otel.contextEnabled', true) || !otelModule) {
+      return callback()
+    }
+
+    return otelModule.Otel.withContext(callback, {
+      bindings: Config.get('event.otel.contextBindings', []),
+      resolveBinding: binding => binding.resolve(ctx)
     })
   }
 
