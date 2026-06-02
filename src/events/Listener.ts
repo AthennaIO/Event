@@ -15,10 +15,19 @@ export class Listener {
   public readonly id: string
   public readonly event: string
   public readonly closure: EventClosure
+  public readonly key?: string
 
-  public constructor(event: string, closure: EventClosure) {
+  /**
+   * The optional `key` uniquely identifies the listener when its closure
+   * source alone cannot. Listeners registered by name (`Event.on(event,
+   * 'MyListener')`) all share the same wrapper closure, so without the name
+   * as a key every named listener on the same event would hash to the same
+   * id and silently overwrite the previous one in the records map.
+   */
+  public constructor(event: string, closure: EventClosure, key?: string) {
     this.event = event
     this.closure = closure
+    this.key = key
     this.id = this.createId()
   }
 
@@ -37,8 +46,10 @@ export class Listener {
   }
 
   private createId() {
+    const identity = this.key ?? this.closure.toString()
+
     return createHash('sha256')
-      .update(`${this.event ?? '*'}|${this.closure.toString()}`)
+      .update(`${this.event ?? '*'}|${identity}`)
       .digest('hex')
   }
 }

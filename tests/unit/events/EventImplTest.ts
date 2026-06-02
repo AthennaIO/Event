@@ -275,6 +275,47 @@ export class EventImplTest {
   }
 
   @Test()
+  public async shouldRegisterAndEmitToMultipleNamedListenersOnTheSameEvent({ assert }: Context) {
+    const event = Event.store('memoryA')
+
+    let webhookCalls = 0
+    let profileCalls = 0
+
+    ioc.bind(
+      'WebhookNamedListener',
+      class {
+        public async handle() {
+          webhookCalls++
+        }
+      }
+    )
+    ioc.bind(
+      'ProfileNamedListener',
+      class {
+        public async handle() {
+          profileCalls++
+        }
+      }
+    )
+
+    event.on('named:event', 'WebhookNamedListener')
+    event.on('named:event', 'ProfileNamedListener')
+
+    /**
+     * Named listeners share the same wrapper closure, so their ids must be
+     * derived from the listener name. Otherwise the second registration
+     * overwrites the first and only one of them ever runs.
+     */
+    assert.equal(event.listenerCount('named:event'), 2)
+
+    await event.emit('named:event', { ok: true })
+    await Sleep.for(40).milliseconds().wait()
+
+    assert.equal(webhookCalls, 1)
+    assert.equal(profileCalls, 1)
+  }
+
+  @Test()
   public async shouldEmitForAnyListenersAndSpecificListeners({ assert }: Context) {
     const event = Event.store('memoryA')
 

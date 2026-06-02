@@ -100,7 +100,11 @@ export class EventImpl extends Macroable {
     let listener = null
 
     if (Is.String(closure)) {
-      listener = new Listener(event, ctx => ioc.safeUse(closure).handle(ctx))
+      listener = new Listener(
+        event,
+        ctx => ioc.safeUse(closure).handle(ctx),
+        closure
+      )
     } else {
       listener = new Listener(event, closure)
     }
