@@ -363,6 +363,57 @@ export class EventImplTest {
   }
 
   @Test()
+  public async shouldNotAckAndShouldLeaveForRedeliveryWhenListenerIdIsUnknown({ assert }: Context) {
+    const event = Event.store('memoryA')
+
+    /**
+     * Registering a listener boots the consumer for this connection. The job
+     * we inject below carries a listenerId that this instance does not own,
+     * simulating a zombie / version-skew / foreign-consumer message.
+     */
+    event.on('keep:consumer:alive', () => {})
+
+    const main = Queue.connection('memoryA').queue('events-a')
+
+    await main.add({
+      listenerId: 'unknown-foreign-listener-id',
+      event: 'foreign:event',
+      data: { foreign: true },
+      emittedAt: Date.now()
+    })
+
+    await Sleep.for(40).milliseconds().wait()
+
+    /**
+     * Before Fix A the consumer acked unknown ids and the queue drained to 0,
+     * silently destroying events it could not handle. The message must survive
+     * for redelivery so a consumer that owns the listener can process it.
+     */
+    assert.deepEqual(await main.length(), 1)
+  }
+
+  @Test()
+  public async shouldHaltTheConsumerLoopWhenClosingAllConsumers({ assert }: Context) {
+    const event = Event.store('memoryA') as any
+
+    event.on('halt:loop', () => {})
+
+    const connection = event.queue.connectionName
+    const state = event.consumers.get(connection)
+
+    assert.isTrue(state.running)
+
+    event.closeAllConsumers()
+
+    /**
+     * Fix B flips running to false so an in-flight loop() does not reschedule
+     * itself into a zombie consumer after the timers are cleared.
+     */
+    assert.isFalse(state.running)
+    assert.equal(event.consumerCount(), 0)
+  }
+
+  @Test()
   public async shouldBeAbleToEmitSequentially({ assert }: Context) {
     const event = Event.store('memoryA')
 

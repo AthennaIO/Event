@@ -8,6 +8,7 @@
  */
 
 import { Config } from '@athenna/config'
+import { debug } from '#src/debug'
 import { Listener } from '#src/events/Listener'
 import { Is, Macroable, Module } from '@athenna/common'
 import type { EventClosure, Context } from '#src/types'
@@ -415,7 +416,8 @@ export class EventImpl extends Macroable {
 
       try {
         await this.processFrom(queue)
-      } catch {
+      } catch (err) {
+        debug('event consumer processFrom error on %s: %o', connection, err)
       } finally {
         if (consumerState.running) {
           consumerState.timer = setTimeout(loop, Math.max(1, interval))
@@ -438,6 +440,13 @@ export class EventImpl extends Macroable {
    */
   public closeAllConsumers() {
     for (const state of this.consumers.values()) {
+      /**
+       * Flip running to false BEFORE clearing the timer so any in-flight
+       * loop() that reaches its finally block sees running === false and
+       * does not reschedule itself into a zombie consumer.
+       */
+      state.running = false
+
       if (state.timer) {
         clearTimeout(state.timer)
       }
@@ -452,7 +461,20 @@ export class EventImpl extends Macroable {
       const record = this.records.get(data.listenerId)
 
       if (!record) {
-        await queue.ack(job.id)
+        /**
+         * Unknown listenerId for THIS instance (zombie / version skew /
+         * foreign or locally-booted consumer / transient empty-records
+         * window). Do NOT ack — leave the message for redelivery so a
+         * consumer that owns the listener can process it. Genuinely-orphaned
+         * messages reach the DLQ via the queue redrive policy (e.g. SQS
+         * maxReceiveCount); acking here would silently delete events this
+         * instance simply does not own.
+         */
+        debug(
+          'event consumer skipping job %s: no local listener for id %s',
+          job.id,
+          data.listenerId
+        )
 
         return
       }
