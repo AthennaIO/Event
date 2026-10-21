@@ -28,4 +28,11 @@ export type Context<T = any> = {
    * The timestamp of the event emission.
    */
   emittedAt: number
+
+  /**
+   * The timestamp when the listener was due to run. It is the same as
+   * `emittedAt` for listeners without delay. Always set when the listener
+   * runs from the queue.
+   */
+  dueAt?: number
 }

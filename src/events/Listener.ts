@@ -9,13 +9,24 @@
 
 import { createHash } from 'node:crypto'
 import { Event } from '#src/facades/Event'
-import type { EventClosure } from '#src/types'
+import type {
+  EventClosure,
+  EmitContext,
+  ListenerQueueOptions
+} from '#src/types'
 
 export class Listener {
   public readonly id: string
   public readonly event: string
   public readonly closure: EventClosure
   public readonly key?: string
+  public readonly options: ListenerQueueOptions
+
+  /**
+   * Decide at `emit()` time if the listener runs for the event. Set from
+   * the `shouldQueue()` method of named listeners.
+   */
+  public readonly shouldQueue?: (ctx: EmitContext) => boolean | Promise<boolean>
 
   /**
    * The optional `key` uniquely identifies the listener when its closure
@@ -23,11 +34,22 @@ export class Listener {
    * 'MyListener')`) all share the same wrapper closure, so without the name
    * as a key every named listener on the same event would hash to the same
    * id and silently overwrite the previous one in the records map.
+   *
+   * The `options` never take part in the id, so the same listener keeps
+   * the same id when its delay, connection or queue changes.
    */
-  public constructor(event: string, closure: EventClosure, key?: string) {
+  public constructor(
+    event: string,
+    closure: EventClosure,
+    key?: string,
+    options: ListenerQueueOptions = {},
+    shouldQueue?: (ctx: EmitContext) => boolean | Promise<boolean>
+  ) {
     this.event = event
     this.closure = closure
     this.key = key
+    this.options = options
+    this.shouldQueue = shouldQueue
     this.id = this.createId()
   }
 

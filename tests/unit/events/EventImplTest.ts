@@ -44,7 +44,7 @@ export class EventImplTest {
 
     let calls = 0
 
-    event.on('new:user', ctx => {
+    const listener = event.on('new:user', ctx => {
       calls++
       assert.deepEqual(ctx.data, user)
     })
@@ -55,7 +55,7 @@ export class EventImplTest {
 
     assert.equal(calls, 1)
 
-    const main = Queue.connection('memoryA').queue('events-a')
+    const main = Queue.connection('memoryA').queue(`events-a:${listener.id}`)
 
     assert.deepEqual(await main.length(), 0)
   }
@@ -66,8 +66,8 @@ export class EventImplTest {
     let aCalls = 0
     let bCalls = 0
 
-    event.on('event:a', () => aCalls++)
-    event.on('event:b', () => bCalls++)
+    const la = event.on('event:a', () => aCalls++)
+    const lb = event.on('event:b', () => bCalls++)
 
     await event.store('memoryA').emit('event:a', { a: 1 })
     await event.store('memoryB').emit('event:b', { b: 2 })
@@ -77,8 +77,8 @@ export class EventImplTest {
     assert.deepEqual(aCalls, 1)
     assert.deepEqual(bCalls, 1)
 
-    const queueA = Queue.connection('memoryA').queue('events-a')
-    const queueB = Queue.connection('memoryB').queue('events-b')
+    const queueA = Queue.connection('memoryA').queue(`events-a:${la.id}`)
+    const queueB = Queue.connection('memoryB').queue(`events-b:${lb.id}`)
 
     assert.deepEqual(await queueA.length(), 0)
     assert.deepEqual(await queueB.length(), 0)
@@ -126,7 +126,7 @@ export class EventImplTest {
   public async shouldRetryAndSendToDeadletterWhenListenerFails({ assert }: Context) {
     const event = Event.store('memoryA')
 
-    event.on('process:fail', () => {
+    const listener = event.on('process:fail', () => {
       throw new Error('fail')
     })
 
@@ -134,7 +134,7 @@ export class EventImplTest {
 
     await Sleep.for(80).milliseconds().wait()
 
-    const main = Queue.connection('memoryA').queue('events-a')
+    const main = Queue.connection('memoryA').queue(`events-a:${listener.id}`)
     const dlq = Queue.connection('memoryA').queue('events-a-deadletter')
 
     assert.deepEqual(await main.length(), 0)
@@ -411,6 +411,79 @@ export class EventImplTest {
      */
     assert.isFalse(state.running)
     assert.equal(event.consumerCount(), 0)
+  }
+
+  @Test()
+  public async shouldRunASingleSerialConsumerLoopByDefault({ assert }: Context) {
+    const event = Event.store('memoryA') as any
+
+    event.on('serial:loop', () => {})
+
+    const state = event.consumers.get(event.queue.connectionName)
+
+    assert.lengthOf(state.timers, 1)
+  }
+
+  @Test()
+  public async shouldFallBackToASingleLoopWhenWorkerConcurrencyIsZeroOrNull({ assert }: Context) {
+    Config.set('queue.connections.memoryA.workerConcurrency', 0)
+
+    const zero = Event.store('memoryA') as any
+
+    zero.on('zero:loop', () => {})
+
+    assert.lengthOf(zero.consumers.get(zero.queue.connectionName).timers, 1)
+
+    Config.set('queue.connections.memoryB.workerConcurrency', null)
+
+    const nil = Event.store('memoryB') as any
+
+    nil.on('null:loop', () => {})
+
+    assert.lengthOf(nil.consumers.get(nil.queue.connectionName).timers, 1)
+  }
+
+  @Test()
+  public async shouldRunMultipleConsumerLoopsWhenWorkerConcurrencyIsSet({ assert }: Context) {
+    const event = Event.store('memoryConcurrent') as any
+
+    event.on('concurrent:loop', () => {})
+
+    const state = event.consumers.get(event.queue.connectionName)
+
+    assert.lengthOf(state.timers, 3)
+  }
+
+  @Test()
+  public async shouldDrainTheQueueFasterWithWorkerConcurrency({ assert }: Context) {
+    const event = Event.store('memoryConcurrent')
+
+    let inFlight = 0
+    let maxInFlight = 0
+
+    const listener = event.on('concurrent:drain', async () => {
+      inFlight++
+      maxInFlight = Math.max(maxInFlight, inFlight)
+      await Sleep.for(20).milliseconds().wait()
+      inFlight--
+    })
+
+    await event.emit('concurrent:drain', { n: 1 })
+    await event.emit('concurrent:drain', { n: 2 })
+    await event.emit('concurrent:drain', { n: 3 })
+
+    await Sleep.for(60).milliseconds().wait()
+
+    /**
+     * With three parallel consumer loops the three jobs are picked up and run
+     * at the same time, so more than one handler is in flight simultaneously —
+     * impossible with the single serial loop of the default configuration.
+     */
+    assert.isAbove(maxInFlight, 1)
+
+    const main = Queue.connection('memoryConcurrent').queue(`events-concurrent:${listener.id}`)
+
+    assert.deepEqual(await main.length(), 0)
   }
 
   @Test()

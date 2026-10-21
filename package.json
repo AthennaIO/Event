@@ -1,6 +1,6 @@
 {
   "name": "@athenna/event",
-  "version": "5.9.0",
+  "version": "5.10.0",
   "description": "The Athenna events handler with queue store. Based on Emittery syntax.",
   "license": "MIT",
   "author": "João Lenon <lenon@athenna.io>",
@@ -57,7 +57,7 @@
     "@athenna/config": "^5.6.0",
     "@athenna/ioc": "^5.2.0",
     "@athenna/logger": "^5.17.0",
-    "@athenna/queue": "^5.20.0",
+    "@athenna/queue": "^5.35.0",
     "@athenna/test": "^5.7.0",
     "@athenna/tsconfig": "^5.0.0",
     "@athenna/view": "^5.4.0",

@@ -7,14 +7,9 @@
  * file that was distributed with this source code.
  */
 
-export type ListenerOptions = {
-  /**
-   * The queue connection that will be used to get the configurations.
-   *
-   * @default Config.get('event.store')
-   */
-  connection?: string
+import type { ListenerQueueOptions } from '#src/types/ListenerQueueOptions'
 
+export type ListenerOptions = ListenerQueueOptions & {
   /**
    * The alias that will be used to register the listener inside
    * the service container.

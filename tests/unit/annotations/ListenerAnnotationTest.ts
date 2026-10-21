@@ -31,6 +31,30 @@ export default class ListenerAnnotationTest extends BaseTest {
   }
 
   @Test()
+  public async shouldNotDefineAConnectionWhenTheListenerDoesNotDeclareOne({ assert }: Context) {
+    const DelayedListener = await this.import('#tests/fixtures/listeners/DelayedListener')
+
+    const metadata = Annotation.getMeta(DelayedListener)
+
+    /**
+     * Without a connection the listener follows `Event.store()`, so the
+     * annotation must not freeze the `event.store` value of import time.
+     */
+    assert.isUndefined(metadata.connection)
+    assert.equal(metadata.delay, 60)
+  }
+
+  @Test()
+  public async shouldStoreTheQueueOptionsOfTheListener({ assert }: Context) {
+    const ViaMethodsListener = await this.import('#tests/fixtures/listeners/ViaMethodsListener')
+
+    const metadata = Annotation.getMeta(ViaMethodsListener)
+
+    assert.equal(metadata.connection, 'memoryB')
+    assert.equal(metadata.queue, 'annotation-queue')
+  }
+
+  @Test()
   @Cleanup(() => ioc.reconstruct())
   public async shouldNotReRegisterTheListenerAliasIfItIsAlreadyRegisteredInTheServiceContainer({ assert }: Context) {
     ioc.singleton('App/Listeners/ProductListener', () => {})

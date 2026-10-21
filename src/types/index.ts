@@ -8,5 +8,9 @@
  */
 
 export * from '#src/types/Context'
+export * from '#src/types/EmitContext'
+export * from '#src/types/EmittedEvent'
 export * from '#src/types/EventClosure'
+export * from '#src/types/ListenerDelay'
 export * from '#src/types/ListenerOptions'
+export * from '#src/types/ListenerQueueOptions'
